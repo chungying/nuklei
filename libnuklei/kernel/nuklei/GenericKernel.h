@@ -264,7 +264,8 @@ namespace nuklei {
     }
     static coord_t cut_point(const coord_t h)
     {
-      return std::numeric_limits<coord_t>::infinity();
+//      return std::numeric_limits<coord_t>::infinity();
+      return h*4;
     }
   };
 
@@ -277,7 +278,8 @@ namespace nuklei {
     }
     static coord_t cut_point(const coord_t h)
     {
-      return std::numeric_limits<coord_t>::infinity();
+//      return std::numeric_limits<coord_t>::infinity();
+      return h*4;
     }
   };
   

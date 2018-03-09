@@ -407,7 +407,7 @@ namespace nuklei {
       typedef std::auto_ptr<kernel::se3> ptr;
       
       typedef nuklei::unnormalized_shape_dist_kernel
-      <groupS::r3, shapeS::triangle> PositionKernel;
+      <groupS::r3, shapeS::gauss> PositionKernel;
       typedef von_mises_fisher_kernel<groupS::so3> OrientationKernel;
       
       se3() :
@@ -516,7 +516,7 @@ namespace nuklei {
       using Super::getFlag;
       
       typedef nuklei::unnormalized_shape_dist_kernel
-      <groupS::r3, shapeS::triangle> PositionKernel;
+      <groupS::r3, shapeS::gauss> PositionKernel;
       typedef von_mises_fisher_kernel<OriGrp> OrientationKernel;
       
       r3xs2_base() :
@@ -629,7 +629,7 @@ namespace nuklei {
       typedef std::auto_ptr<kernel::r3> ptr;
       
       typedef nuklei::unnormalized_shape_dist_kernel
-      <groupS::r3, shapeS::triangle> PositionKernel;
+      <groupS::r3, shapeS::gauss> PositionKernel;
 
       r3() :
       loc_(Vector3::ZERO),
