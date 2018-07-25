@@ -173,15 +173,34 @@ namespace nuklei {
         
         as_const(*tree).first->findNeighbors(resultSet, evalPoint.loc_, nuklei_nanoflann::SearchParams());
         
-        for (std::vector<std::pair<size_t,coord_t> >::const_iterator i = indices_dists.begin(); i != indices_dists.end(); i++)
+        if(indices_dists.size() == 0)
         {
-          coord_t cvalue = 0;
-          const KernelType &densityPoint = static_cast<const KernelType&>(at(i->first));
-          cvalue = densityPoint.eval(evalPoint);
-          if (strategy == MAX_EVAL) value = std::max(value, cvalue);
-          else if (strategy == SUM_EVAL) value += cvalue;
-          else if (strategy == WEIGHTED_SUM_EVAL) value += cvalue * densityPoint.getWeight();
-          else NUKLEI_ASSERT(false);
+          size_t num_closest = 1;
+          std::pair< std::vector<size_t>,std::vector<coord_t> > indices_dists = std::make_pair(std::vector<size_t>(num_closest),std::vector<coord_t>(num_closest) );
+          as_const(*tree).first->knnSearch(evalPoint.loc_, num_closest, indices_dists.first.data(), indices_dists.second.data());
+          for (std::vector<size_t>::const_iterator idx = indices_dists.first.begin(); idx != indices_dists.first.end(); idx++)
+          {
+            coord_t cvalue = 0;
+            const KernelType &densityPoint = static_cast<const KernelType&>(at(idx));
+            cvalue = densityPoint.eval(evalPoint);
+            if (strategy == MAX_EVAL) value = std::max(value, cvalue);
+            else if (strategy == SUM_EVAL) value += cvalue;
+            else if (strategy == WEIGHTED_SUM_EVAL) value += cvalue * densityPoint.getWeight();
+            else NUKLEI_ASSERT(false);
+          }
+        }
+        else
+        {
+          for (std::vector<std::pair<size_t,coord_t> >::const_iterator i = indices_dists.begin(); i != indices_dists.end(); i++)
+          {
+            coord_t cvalue = 0;
+            const KernelType &densityPoint = static_cast<const KernelType&>(at(i->first));
+            cvalue = densityPoint.eval(evalPoint);
+            if (strategy == MAX_EVAL) value = std::max(value, cvalue);
+            else if (strategy == SUM_EVAL) value += cvalue;
+            else if (strategy == WEIGHTED_SUM_EVAL) value += cvalue * densityPoint.getWeight();
+            else NUKLEI_ASSERT(false);
+          }
         }
       }
       else
@@ -201,6 +220,9 @@ namespace nuklei {
         
         as_const(*tree).find_within_range(s, range, std::back_inserter(in_range));
         
+        if(in_range.size()==0) NUKLEI_ASSERT(false);//cannot be zero neighbors
+        //TODO solve the assertion
+
         for (std::vector<FlexiblePoint>::const_iterator i = in_range.begin(); i != in_range.end(); i++)
         {
           coord_t cvalue = 0;
@@ -213,13 +235,14 @@ namespace nuklei {
         }
       }
     }
-    else
+    else //the condition of (KDTREE_DENSITY_EVAL && size() <= 1000)
     {
       const KernelType &evalPoint = static_cast<const KernelType&>(k);
       for (const_iterator i = begin(); i != end(); i++)
       {
         coord_t cvalue = 0;
         const KernelType &densityPoint = static_cast<const KernelType&>(*i);
+        //TODO if densityPooint.eval perform cutpoint, find the closest point
         cvalue = densityPoint.eval(evalPoint);
         if (strategy == MAX_EVAL) value = std::max(value, cvalue);
         else if (strategy == SUM_EVAL) value += cvalue;
