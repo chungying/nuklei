@@ -220,8 +220,7 @@ namespace nuklei {
         
         as_const(*tree).find_within_range(s, range, std::back_inserter(in_range));
         
-        if(in_range.size()==0) NUKLEI_ASSERT(false);//cannot be zero neighbors
-        //TODO solve the assertion
+        if(in_range.size()==0) NUKLEI_ASSERT(false);//because libkdtree doesn't have knnSearch functions
 
         for (std::vector<FlexiblePoint>::const_iterator i = in_range.begin(); i != in_range.end(); i++)
         {
