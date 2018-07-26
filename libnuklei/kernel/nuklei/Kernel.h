@@ -709,8 +709,12 @@ namespace nuklei {
     coord_t se3::eval(const kernel::se3& k) const
     {      
       coord_t r3e = PositionKernel::eval(loc_, loc_h_, k.loc_);
-      if (r3e < FLOATTOL) return 0;
-      else return r3e * OrientationKernel::eval(ori_, ori_h_, k.ori_);
+      if (r3e < FLOATTOL) 
+        //avoiding zero value
+        return r3e;
+        //return 0;
+      else 
+        return r3e * OrientationKernel::eval(ori_, ori_h_, k.ori_);
     }
     
     template<class OriGrp>

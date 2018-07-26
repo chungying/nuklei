@@ -136,6 +136,11 @@ namespace nuklei {
     NUKLEI_ASSERT(*kernelType_ == k.polyType());
     
     coord_t value = 0;
+    //for debugin KDTREE_NANOFLANN when value == 0
+    std::vector<std::pair<size_t,coord_t> > indices_dists; 
+    size_t num_closest = 1;
+    std::pair< std::vector<size_t>,std::vector<coord_t> > indices_dists_pair = std::make_pair(std::vector<size_t>(num_closest),std::vector<coord_t>(num_closest) );
+
     if (KDTREE_DENSITY_EVAL && size() > 1000)
     {
 #if NUKLEI_CHECK_KDTREE_COUNT
@@ -168,25 +173,24 @@ namespace nuklei {
         // nanoflann takes squared distances.
         range = range*range;
         
-        std::vector<std::pair<size_t,coord_t> > indices_dists;
         RadiusResultSet<coord_t,size_t> resultSet(range,indices_dists);
         
         as_const(*tree).first->findNeighbors(resultSet, evalPoint.loc_, nuklei_nanoflann::SearchParams());
         
         if(indices_dists.size() == 0)
         {
-          size_t num_closest = 1;
-          std::pair< std::vector<size_t>,std::vector<coord_t> > indices_dists = std::make_pair(std::vector<size_t>(num_closest),std::vector<coord_t>(num_closest) );
-          as_const(*tree).first->knnSearch(evalPoint.loc_, num_closest, indices_dists.first.data(), indices_dists.second.data());
-          for (std::vector<size_t>::const_iterator idx_it = indices_dists.first.begin(); idx_it != indices_dists.first.end(); idx_it++)
+          as_const(*tree).first->knnSearch(evalPoint.loc_, num_closest, indices_dists_pair.first.data(), indices_dists_pair.second.data());
+          for (std::vector<size_t>::const_iterator idx_it = indices_dists_pair.first.begin(); idx_it != indices_dists_pair.first.end(); idx_it++)
           {
             coord_t cvalue = 0;
             const KernelType &densityPoint = static_cast<const KernelType&>(at(*idx_it));
             cvalue = densityPoint.eval(evalPoint);
+            NUKLEI_ASSERT(cvalue > 0.0);
             if (strategy == MAX_EVAL) value = std::max(value, cvalue);
             else if (strategy == SUM_EVAL) value += cvalue;
             else if (strategy == WEIGHTED_SUM_EVAL) value += cvalue * densityPoint.getWeight();
             else NUKLEI_ASSERT(false);
+            NUKLEI_ASSERT(value>0.0);
           }
         }
         else
