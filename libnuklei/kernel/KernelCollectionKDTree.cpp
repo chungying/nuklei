@@ -178,10 +178,10 @@ namespace nuklei {
           size_t num_closest = 1;
           std::pair< std::vector<size_t>,std::vector<coord_t> > indices_dists = std::make_pair(std::vector<size_t>(num_closest),std::vector<coord_t>(num_closest) );
           as_const(*tree).first->knnSearch(evalPoint.loc_, num_closest, indices_dists.first.data(), indices_dists.second.data());
-          for (std::vector<size_t>::const_iterator idx = indices_dists.first.begin(); idx != indices_dists.first.end(); idx++)
+          for (std::vector<size_t>::const_iterator idx_it = indices_dists.first.begin(); idx_it != indices_dists.first.end(); idx_it++)
           {
             coord_t cvalue = 0;
-            const KernelType &densityPoint = static_cast<const KernelType&>(at(idx));
+            const KernelType &densityPoint = static_cast<const KernelType&>(at(*idx_it));
             cvalue = densityPoint.eval(evalPoint);
             if (strategy == MAX_EVAL) value = std::max(value, cvalue);
             else if (strategy == SUM_EVAL) value += cvalue;
